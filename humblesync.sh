@@ -23,7 +23,7 @@ shift
 KEYS=($@)
 
 # check if username and password are set
-if [ -z "$USER" ] || [ -z "$USER" ]
+if [ -z "$USER" ] || [ -z "$PASS" ]
 then
   echo "set your username and password by editing this script"
   exit 1
