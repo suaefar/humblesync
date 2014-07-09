@@ -95,38 +95,41 @@ getfiles() {
       grep -o '/[^/]\+$' | \
       sed -E -e 's/\?.*//g' -e 's/^\///g')
     local FILENAME="$DATADIR/$NAME"
-    echo "    '${NAME}' ($SIZE b)"
-    if [ -e "$FILENAME" ] && [ "$SIZE" == $(stat -c%s "$FILENAME") ]
+    if [ -n "$FILENAME" ] && [ "$SIZE" != "null" ]
     then
-      echo "      exists"
-      continue
-    fi
-    if ! ALIVE
-    then
-      echo "  logout"
-      return 1
-    fi
-    echo "      download"
-    GET "$FILENAME" "${URL}"
-    if [ -e "$FILENAME" ]
-    then
-      echo "        done"
-      local SIZECHECK=$(stat -c%s "$FILENAME")
-      if [ "$SIZE" == "$SIZECHECK" ]
+      echo "    '${NAME}' ($SIZE b)"
+      if [ -e "$FILENAME" ] && [ "$SIZE" == $(stat -c%s "$FILENAME") ]
       then
-        echo "        size:$SIZECHECK b ok"
-        local MD5CHECK=$(md5sum "$FILENAME" | cut -d" " -f1)
-        if [ "$MD5" == "$MD5CHECK" ]
+        echo "      exists"
+        continue
+      fi
+      if ! ALIVE
+      then
+        echo "  logout"
+        return 1
+      fi
+      echo "      download"
+      GET "$FILENAME" "${URL}"
+      if [ -e "$FILENAME" ]
+      then
+        echo "        done"
+        local SIZECHECK=$(stat -c%s "$FILENAME")
+        if [ "$SIZE" == "$SIZECHECK" ]
         then
-          echo "        md5sum:$MD5CHECK ok"
+          echo "        size:$SIZECHECK b ok"
+          local MD5CHECK=$(md5sum "$FILENAME" | cut -d" " -f1)
+          if [ "$MD5" == "$MD5CHECK" ]
+          then
+            echo "        md5sum:$MD5CHECK ok"
+          else
+            echo "        md5sum:$MD5CHECK wrong. should be $MD5"
+          fi
         else
-          echo "        md5sum:$MD5CHECK wrong. should be $MD5"
+          echo "        size:$SIZECHECK b wrong. should be $SIZE b"
         fi
       else
-        echo "        size:$SIZECHECK b wrong. should be $SIZE b"
+        echo "        error"
       fi
-    else
-      echo "        error"
     fi
   done && return 0
   return 1
