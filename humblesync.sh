@@ -43,7 +43,13 @@ fi
 GET() {
   local FILENAME="$1"
   shift
-  curl -o "$FILENAME" -s --cookie ./logincookie $@
+  curl -o "$FILENAME" -s --cookie ./logincookie \
+  --header "Accept: application/json" \
+  --header "Accept-Charset: utf-8" \
+  --header "Keep-Alive: true" \
+  --header "X-Requested-By: hb_android_app" \
+  --header "User-Agent: Apache-HttpClient/UNAVAILABLE (java 1.4)" \
+  $@
 }
 
 ALIVE() {
@@ -54,6 +60,11 @@ ALIVE() {
 
 LOGIN() {
   curl --cookie-jar ./logincookie \
+  --header "Accept: application/json" \
+  --header "Accept-Charset: utf-8" \
+  --header "Keep-Alive: true" \
+  --header "X-Requested-By: hb_android_app" \
+  --header "User-Agent: Apache-HttpClient/UNAVAILABLE (java 1.4)" \
   --data "username=$USER" \
   --data "password=$PASS" \
   "${HUMBLE_URL}/login" &> /dev/null
@@ -76,7 +87,7 @@ extract() {
 
 getkeys() {
   CONNECT
-  GET - "$HUMBLE_URL/home" | \
+  GET - "$HUMBLE_URL/api/v1/user/order" | \
   grep -o -E '"[A-Za-z0-9]{16}"' | \
   tr -d '"'
 }
